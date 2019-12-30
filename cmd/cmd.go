@@ -4,7 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
+
+	"github.com/zabio3/transcriber/transcribe"
 )
 
 // CLI represents CLI interface.
@@ -43,13 +44,13 @@ func (cli *CLI) Run(args []string) int {
 			fmt.Fprint(cli.ErrStream, fmt.Errorf("empty filepath"))
 			return ExitCodeArgsError
 		}
-		b, err := ioutil.ReadFile(filePath)
+		signal, err := transcribe.GetSampleRate(filePath)
 		if err != nil {
 			fmt.Fprint(cli.ErrStream, err)
 			return ExitCodeInternalError
 		}
 
-		fmt.Fprint(cli.OutStream, string(b))
+		fmt.Fprint(cli.OutStream, signal.Rate, signal.Channels)
 	// voice stream recognition
 	// case "stream":
 	default:
