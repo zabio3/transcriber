@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	cli := &cmd.CLI{ErrStream: os.Stderr}
+	cli := &cmd.CLI{OutStream: os.Stdout, ErrStream: os.Stderr}
 	os.Exit(cli.Run(os.Args))
 }
