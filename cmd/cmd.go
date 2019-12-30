@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 
 	"github.com/zabio3/transcriber/transcribe"
+	"github.com/zabio3/transcriber/transcribe/gcp"
 )
 
 // CLI represents CLI interface.
@@ -37,6 +40,7 @@ func (cli *CLI) Run(args []string) int {
 		return ExitCodeParseFlagsError
 	}
 
+	ctx := context.Background()
 	switch mode {
 	// audio file recognition
 	case "file":
@@ -50,13 +54,28 @@ func (cli *CLI) Run(args []string) int {
 			return ExitCodeInternalError
 		}
 
-		fmt.Fprint(cli.OutStream, signal.Rate, signal.Channels)
+		b, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			fmt.Fprint(cli.ErrStream, err)
+			return ExitCodeInternalError
+		}
+
+		res, err := gcp.RecognizeSpeech(ctx, b, signal)
+		if err != nil {
+			fmt.Fprint(cli.ErrStream, err)
+			return ExitCodeInternalError
+		}
+
+		for _, v := range res {
+			fmt.Fprint(cli.OutStream, fmt.Sprintf("confidence: %f, content: %s", v.Confidence, v.Content))
+		}
+
+		//fmt.Fprint(cli.OutStream, res)
+		return ExitCodeOK
 	// voice stream recognition
 	// case "stream":
 	default:
 		fmt.Fprint(cli.ErrStream, fmt.Errorf("unknown mode: %s", mode))
 		return ExitCodeArgsError
 	}
-
-	return ExitCodeOK
 }

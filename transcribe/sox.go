@@ -6,11 +6,6 @@ import (
 	"github.com/krig/go-sox"
 )
 
-type SignalInfo struct {
-	Rate     float64
-	Channels uint
-}
-
 func GetSampleRate(path string) (*SignalInfo, error) {
 	if !sox.Init() {
 		return nil, fmt.Errorf("failed to initialize sox")
@@ -24,7 +19,8 @@ func GetSampleRate(path string) (*SignalInfo, error) {
 	defer in.Release()
 
 	return &SignalInfo{
-		Rate:     in.Signal().Rate(),
+		Type:     in.Type(),
+		Rate:     int32(in.Signal().Rate()),
 		Channels: in.Signal().Channels(),
 	}, nil
 }
