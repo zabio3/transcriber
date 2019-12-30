@@ -72,10 +72,15 @@ func (cli *CLI) Run(args []string) int {
 			fmt.Fprint(cli.OutStream, fmt.Sprintf("confidence: %f, content: %s", v.Confidence, v.Content))
 		}
 
-		//fmt.Fprint(cli.OutStream, res)
 		return ExitCodeOK
 	// voice stream recognition
-	// case "stream":
+	case "stream":
+		_, err := gcp.StreamRecognizeSpeech(ctx, []byte{}, lang)
+		if err != nil {
+			fmt.Fprint(cli.ErrStream, err)
+			return ExitCodeInternalError
+		}
+		return ExitCodeOK
 	default:
 		fmt.Fprint(cli.ErrStream, fmt.Errorf("unknown mode: %s", mode))
 		return ExitCodeArgsError
