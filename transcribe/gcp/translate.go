@@ -22,7 +22,7 @@ func NewSpeechClient(ctx context.Context) (*speech.Client, error) {
 	return speechClient, err
 }
 
-func RecognizeSpeech(ctx context.Context, in []byte, si *transcribe.SignalInfo) ([]*transcribe.Transcript, error) {
+func RecognizeSpeech(ctx context.Context, in []byte, si *transcribe.SignalInfo, lang string) ([]*transcribe.Transcript, error) {
 	if _, err := NewSpeechClient(ctx); err != nil {
 		return nil, fmt.Errorf("failed to create cloud speech client (err: %s)", err)
 	}
@@ -36,7 +36,7 @@ func RecognizeSpeech(ctx context.Context, in []byte, si *transcribe.SignalInfo) 
 		Config: &speechpb.RecognitionConfig{
 			Encoding:        enc,
 			SampleRateHertz: si.Rate,
-			LanguageCode:    "ja-JP",
+			LanguageCode:    lang,
 		},
 		Audio: &speechpb.RecognitionAudio{
 			AudioSource: &speechpb.RecognitionAudio_Content{

@@ -26,6 +26,7 @@ const (
 
 var (
 	mode     string
+	lang     string
 	filePath string
 )
 
@@ -33,8 +34,9 @@ var (
 func (cli *CLI) Run(args []string) int {
 	flags := flag.NewFlagSet("transcriber", flag.ContinueOnError)
 
-	flags.StringVar(&mode, "m", "file", "Use audio recognition mode (\"file\" | \"stream\") ")
+	flags.StringVar(&mode, "m", "file", "Use audio recognition mode (\"file\", \"stream\") ")
 	flags.StringVar(&filePath, "f", "", "Path to audio file when \"file\" mode")
+	flags.StringVar(&lang, "l", "ja-JP", "Use to recognize language (ref https://cloud.google.com/speech-to-text/docs/languages)")
 	if err := flags.Parse(args[1:]); err != nil {
 		fmt.Fprint(cli.ErrStream, err)
 		return ExitCodeParseFlagsError
@@ -60,7 +62,7 @@ func (cli *CLI) Run(args []string) int {
 			return ExitCodeInternalError
 		}
 
-		res, err := gcp.RecognizeSpeech(ctx, b, signal)
+		res, err := gcp.RecognizeSpeech(ctx, b, signal, lang)
 		if err != nil {
 			fmt.Fprint(cli.ErrStream, err)
 			return ExitCodeInternalError
